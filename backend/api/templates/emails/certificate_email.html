@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شهادة التطوع</title>
+</head>
+<body dir="rtl" style="margin:0;padding:20px;background-color:#EDF2F7;font-family:Tajawal,Arial,sans-serif;color:#2D3748;line-height:1.8;">
+    <div style="max-width:600px;margin:20px auto;background:#ffffff;border-radius:16px;overflow:hidden;">
+        <div style="background:linear-gradient(135deg,#105D56 0%,#1A7F76 100%);background-color:#105D56;padding:36px 20px;text-align:center;">
+            <div style="font-size:44px;line-height:1;">🎓</div>
+            <h1 style="color:#ffffff;font-size:26px;margin:14px 0 0;">مبروك! شهادة التطوع الخاصة بك جاهزة</h1>
+        </div>
+
+        <div style="padding:36px 30px;text-align:right;direction:rtl;">
+            <p style="margin:0 0 14px;">السلام عليكم {{ volunteer_name }}،</p>
+            <p style="margin:0 0 14px;">
+                نشكرك على مساهمتك القيّمة. يسعد <strong>{{ organization_name }}</strong> أن تمنحك شهادة تطوع
+                تقديراً لمشاركتك في:
+            </p>
+
+            <div style="background:#F7FAFC;border:1px solid #E2E8F0;border-right:4px solid #105D56;border-radius:12px;padding:20px 22px;margin:24px 0;">
+                <p style="margin:0 0 8px;color:#105D56;font-size:19px;font-weight:700;">{{ opportunity_title }}</p>
+                <p style="margin:0;">عدد ساعات التطوع: <strong>{{ hours }} ساعة</strong></p>
+                <p style="margin:0;">الرقم التسلسلي: <strong dir="ltr">{{ serial_number }}</strong></p>
+            </div>
+
+            <p style="margin:0 0 14px;">
+                تجد الشهادة مرفقة بهذه الرسالة بصيغة PDF، ويمكنك أيضاً تحميلها في أي وقت من صفحة مشاركاتك في المنصة.
+            </p>
+
+            <a href="{{ certificates_url }}" style="display:block;max-width:300px;margin:28px auto;background-color:#105D56;color:#ffffff !important;text-decoration:none;font-weight:700;padding:15px 30px;border-radius:8px;text-align:center;">
+                عرض شهاداتي في المنصة
+            </a>
+
+            <p style="margin:0 0 14px;font-size:14px;color:#4A5568;">
+                يمكن لأي جهة التحقق من صحة الشهادة عبر مسح رمز QR الموجود عليها أو من خلال الرابط:
+                <a href="{{ verify_url }}" style="color:#105D56;">{{ verify_url }}</a>
+            </p>
+
+            <p style="margin:24px 0 0;">مع خالص التقدير والاحترام،<br>فريق لنتطوع</p>
+        </div>
+
+        <div style="background:#F7FAFC;padding:24px;text-align:center;color:#4A5568;font-size:13px;border-top:1px solid #E2E8F0;">
+            <p style="margin:0;">© لنتطوع. جميع الحقوق محفوظة.</p>
+            <p style="margin:0;">هذه رسالة آلية، يرجى عدم الرد عليها.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <title>تقرير إحصائيات منصة التطوع</title>
+    <style>
+        body {
+            font-family: 'Arabic', Arial, sans-serif;
+            margin: 20px;
+            color: #333;
+            direction: rtl;
+            text-align: right;
+        }
+      
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #2e7d32; /* Primary Color - Green */
+            margin-bottom: 5px;
+        }
+        .header p {
+            color: #546e7a;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section h2 {
+            color: #0277bd; /* Secondary Color - Blue */
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        .stat-box {
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0277bd; /* Secondary Color - Blue */
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #546e7a;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: right;
+        }
+        th {
+            background-color: #e8f5e9; /* Light Primary Green */
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #546e7a;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>تقرير إحصائيات منصة التطوع</h1>
+        <p>تم إنشاؤه في {% now "F j, Y" %}</p>
+    </div>
+
+    <div class="section">
+        <h2>نظرة عامة على الإحصائيات</h2>
+        <div style="display: flex; justify-content: space-between;">
+            <div class="stat-box">
+                <div class="stat-value">{{ total_volunteers }}</div>
+                <div class="stat-label">إجمالي المتطوعين</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">{{ total_organizations }}</div>
+                <div class="stat-label">إجمالي المنظمات</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">{{ total_opportunities }}</div>
+                <div class="stat-label">إجمالي الفرص التطوعية</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">{{ total_participations }}</div>
+                <div class="stat-label">إجمالي المشاركات</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>تأثير المتطوعين</h2>
+        <div class="stat-box">
+            <div class="stat-value">{{ total_volunteer_hours }}</div>
+            <div class="stat-label">إجمالي ساعات التطوع</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value">{{ completed_participations }}</div>
+            <div class="stat-label">المشاركات المكتملة</div>
+        </div>
+        
+        <h3>أفضل المتطوعين</h3>
+        <table>
+            <tr>
+                <th>اسم المتطوع</th>
+                <th>عدد المشاركات</th>
+                <th>ساعات العمل</th>
+            </tr>
+            {% for volunteer in top_volunteers %}
+            <tr>
+                <td>{{ volunteer.volunteer__first_name }} {{ volunteer.volunteer__last_name }}</td>
+                <td>{{ volunteer.participation_count }}</td>
+                <td>{{ volunteer.hours_worked|default:"0" }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>مساهمات المنظمات</h2>
+        <table>
+            <tr>
+                <th>المنظمة</th>
+                <th>الفرص المنشأة</th>
+            </tr>
+            {% for org in top_organizations %}
+            <tr>
+                <td>{{ org.organization_name }}</td>
+                <td>{{ org.opportunities_count }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>فئات الفرص التطوعية</h2>
+        <table>
+            <tr>
+                <th>الفئة</th>
+                <th>العدد</th>
+            </tr>
+            {% for category in opportunities_by_category %}
+            <tr>
+                <td>{{ category.category__label|default:"غير محدد" }}</td>
+                <td>{{ category.count }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>حالة المشاركات</h2>
+        <table>
+            <tr>
+                <th>الحالة</th>
+                <th>العدد</th>
+            </tr>
+            
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>توزيع المساعدات</h2>
+        <table>
+            <tr>
+                <th>نوع المساعدة</th>
+                <th>العدد</th>
+            </tr>
+            {% for aid in aid_by_type %}
+            <tr>
+                <td>{{ aid.aid_type__label|default:"غير محدد" }}</td>
+                <td>{{ aid.count }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="footer">
+        <p>هذا التقرير تم إنشاؤه تلقائيًا بواسطة نظام منصة التطوع.</p>
+    </div>
+</body>
+</html>

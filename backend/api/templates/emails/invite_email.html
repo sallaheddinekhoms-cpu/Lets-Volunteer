@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="date=no">
+    <title>دعوة للمشاركة في فرصة تطوع</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            direction: rtl;
+            unicode-bidi: bidi-override;
+        }
+        
+        body {
+            font-family: 'Tajawal', Arial, sans-serif !important;
+            line-height: 1.8;
+            color: #2D3748;
+            background-color: #EDF2F7;
+            margin: 0;
+            padding: 20px;
+            direction: rtl;
+            text-align: right;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .email-header {
+            background: linear-gradient(135deg, #105D56 0%, #1A7F76 100%);
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .email-header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h20v20H0z" fill="none"/><circle cx="3" cy="3" r="1" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+            opacity: 0.3;
+        }
+        
+        .email-header img {
+            height: 70px;
+            position: relative;
+            z-index: 1;
+            margin: 0 auto;
+            display: block;
+        }
+        
+        .email-content {
+            padding: 40px 30px;
+            direction: rtl;
+            text-align: right;
+        }
+        
+        .email-title {
+            color: #105D56;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0 0 30px;
+            text-align: center;
+            position: relative;
+            font-family: 'Tajawal', Arial, sans-serif !important;
+        }
+        
+        .email-title::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background: #105D56;
+            margin: 15px auto 0;
+            border-radius: 2px;
+        }
+        
+        .email-body {
+            margin-bottom: 40px;
+            font-size: 16px;
+            direction: rtl;
+            text-align: right;
+            font-family: 'Tajawal', Arial, sans-serif !important;
+        }
+        
+        .email-body p {
+            margin-bottom: 15px;
+            direction: rtl;
+            text-align: right;
+        }
+        
+        .opportunity-details {
+            background-color: #F7FAFC;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            border: 1px solid #E2E8F0;
+            direction: rtl;
+            text-align: right;
+        }
+        
+        .opportunity-details h3 {
+            margin: 0 0 20px;
+            color: #105D56;
+            font-size: 20px;
+            position: relative;
+            padding-right: 15px;
+            font-family: 'Tajawal', Arial, sans-serif !important;
+        }
+        
+        .opportunity-details h3::before {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 20px;
+            background-color: #105D56;
+            border-radius: 2px;
+        }
+        
+        .detail-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid #E2E8F0;
+            direction: rtl;
+            text-align: right;
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .detail-label {
+            font-weight: 700;
+            min-width: 140px;
+            color: #4A5568;
+            padding-left: 15px;
+            font-family: 'Tajawal', Arial, sans-serif !important;
+        }
+        
+        .detail-value {
+            flex: 1;
+            font-family: 'Tajawal', Arial, sans-serif !important;
+        }
+        
+        .cta-button {
+            display: block;
+            background: linear-gradient(135deg, #105D56 0%, #1A7F76 100%);
+            color: white !important;
+            font-weight: 700;
+            text-decoration: none;
+            padding: 16px 32px;
+            border-radius: 8px;
+            margin: 30px auto;
+            text-align: center;
+            transition: transform 0.2s ease;
+            box-shadow: 0 4px 6px rgba(16, 93, 86, 0.2);
+            max-width: 300px;
+            font-family: 'Tajawal', Arial, sans-serif !important;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(16, 93, 86, 0.3);
+        }
+        
+        .email-footer {
+            background-color: #F7FAFC;
+            padding: 30px;
+            text-align: center;
+            color: #4A5568;
+            font-size: 14px;
+            border-top: 1px solid #E2E8F0;
+            direction: rtl;
+        }
+        
+        .social-links {
+            margin: 20px 0;
+            padding: 20px 0;
+            border-top: 1px solid #E2E8F0;
+            border-bottom: 1px solid #E2E8F0;
+            text-align: center;
+        }
+        
+        .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            color: #105D56;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 6px;
+            background-color: #EDF2F7;
+            transition: all 0.2s ease;
+            font-family: 'Tajawal', Arial, sans-serif !important;
+        }
+        
+        .social-links a:hover {
+            background-color: #105D56;
+            color: white;
+        }
+        
+        /* Force RTL for all text elements */
+        h1, h2, h3, h4, h5, h6, p, span, a, div {
+            direction: rtl !important;
+            text-align: right !important;
+            font-family: 'Tajawal', Arial, sans-serif !important;
+        }
+        
+        @media only screen and (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            .email-container {
+                margin: 10px auto;
+                border-radius: 12px;
+                width: 100% !important;
+            }
+            
+            .email-content {
+                padding: 30px 20px;
+            }
+            
+            .email-title {
+                font-size: 24px;
+            }
+            
+            .detail-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .detail-label {
+                margin-bottom: 5px;
+                padding-left: 0;
+            }
+            
+            .cta-button {
+                width: 100%;
+                max-width: none;
+                margin: 20px 0;
+            }
+            
+            .social-links a {
+                display: block;
+                margin: 10px 0;
+            }
+        }
+        
+        /* Email client specific fixes */
+        [dir="rtl"] {
+            direction: rtl !important;
+            text-align: right !important;
+        }
+        
+        /* MSO fixes for Outlook */
+        [style*="Tajawal"] {
+            font-family: 'Tajawal', Arial, sans-serif !important;
+        }
+    </style>
+</head>
+<body dir="rtl">
+    <div class="email-container">
+        <div class="email-header">
+            <img src="{{ logo_url }}" alt="لنتطوع" />
+        </div>
+        
+        <div class="email-content">
+            <h1 class="email-title">دعوة للمشاركة في فرصة تطوعية</h1>
+            
+            <div class="email-body">
+                <p>السلام عليكم ورحمة الله وبركاته،</p>
+                <p>نأمل أن تصلك رسالتنا هذه وأنت بخير. نود دعوتك للمشاركة في فرصة تطوعية مميزة من خلال منصة "لنتطوع".</p>
+                
+                <div class="opportunity-details">
+                    <h3>{{ opportunity_title|default:"فرصة تطوعية جديدة" }}</h3>
+                    
+                    {% if opportunity_description %}
+                    <p>{{ opportunity_description }}</p>
+                    {% endif %}
+                    
+                    {% if opportunity_start_date %}
+                    <div class="detail-row">
+                        <span >تاريخ البدء:</span>
+                        <span >{{ opportunity_start_date }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if opportunity_end_date %}
+                    <div class="detail-row">
+                        <span class="detail-label">المدة:</span>
+                        <span class="detail-value">{{ opportunity_duration }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if opportunity_wilaya %}
+                    <div class="detail-row">
+                        <span class="detail-label">الموقع:</span>
+                        <span class="detail-value">{{ opportunity_wilaya }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <p>{{ custom_message|default:"نعتقد أن خبراتك ومهاراتك ستكون إضافة قيمة لهذه الفرصة، ونتطلع إلى مشاركتك الفعالة معنا." }}</p>
+                
+                <p>للمزيد من المعلومات حول هذه الفرصة والتسجيل للمشاركة، يرجى الضغط على الزر أدناه:</p>
+                
+                <a href="{{ opportunity_url|default:'#' }}" class="cta-button">عرض تفاصيل الفرصة</a>
+                
+                <p>إذا كان لديك أي استفسارات أو أسئلة، لا تتردد في التواصل معنا.</p>
+                
+                <p>
+                    مع خالص التقدير والاحترام،<br>
+                    فريق لنتطوع
+                </p>
+            </div>
+        </div>
+        
+        <div class="email-footer">
+            <div class="social-links">
+                {% if facebook_url %}<a href="{{ facebook_url }}">فيسبوك</a>{% endif %}
+                {% if twitter_url %}<a href="{{ twitter_url }}">تويتر</a>{% endif %}
+                {% if instagram_url %}<a href="{{ instagram_url }}">انستغرام</a>{% endif %}
+                {% if linkedin_url %}<a href="{{ linkedin_url }}">لينكد إن</a>{% endif %}
+            </div>
+            
+            <p>© {{ current_year|default:"2025" }} لنتطوع. جميع الحقوق محفوظة.</p>
+            <p>هذه رسالة آلية، يرجى عدم الرد عليها.</p>
+        </div>
+    </div>
+</body>
+</html>
