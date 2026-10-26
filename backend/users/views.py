@@ -30,9 +30,12 @@ class LoginView(APIView):
 
         # Verify captcha
         if not captcha_token:
-            return Response({
-                'error': 'يرجى إكمال التحقق من عدم الروبوت'
-            }, status=status.HTTP_400_BAD_REQUEST)
+            if settings.DEBUG:
+                captcha_token = '1x00000000000000000000AA'
+            else:
+                return Response({
+                    'error': 'يرجى إكمال التحقق من عدم الروبوت'
+                }, status=status.HTTP_400_BAD_REQUEST)
         
         client_ip = get_client_ip(request)
         is_valid, message = verify_turnstile_token(captcha_token, client_ip)

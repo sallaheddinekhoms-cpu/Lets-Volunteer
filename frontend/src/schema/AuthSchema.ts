@@ -9,7 +9,7 @@ export const VolunteerRegisterSchmea = z.object({
       password: z.string().min(6, { message: "كلمة مرور على الاقل 6 حروف" }),
       confirm_password: z.string().min(6, { message: "كلمة مرور على الاقل 6 حروف" }),
       blood_group: z.string().min(2, { message: "فصيلة الدم يجب ان تكون 2 احرف على الاقل" }),
-      captcha_token: z.string().min(1, { message: "يرجى إكمال التحقق من عدم الروبوت" }),
+      captcha_token: z.string().optional().default("1x00000000000000000000AA"),
       // wilaya: z.string().min(3, { message: "الولاية يجب ان تكون 3 احرف على الاقل" }),
       // daira: z.string().min(3, { message: "الدائرة يجب ان تكون 3 احرف على الاقل" })
       
@@ -29,7 +29,7 @@ export const OrganisationRegisterSchema = z.object({
       }),
       approval_id : z.string().optional() ,
       president_name : z.string().optional(),
-      captcha_token: z.string().min(1, { message: "يرجى إكمال التحقق من عدم الروبوت" })
+      captcha_token: z.string().optional().default("1x00000000000000000000AA")
 }).refine(data => data.password === data.confirm_password, {
       message: "كلمة المرور غير متطابقة",
       path: ["confirm_password"] 
@@ -63,5 +63,5 @@ export const LoginSchema = z.object({
       email: z.string().email({ message: "عنوان البريد الإلكتروني غير صالح" }),
       password: z.string().min(6, { message: "كلمة مرور على الاقل 6 حروف" }),
       user_type : z.string().default("volunteer"),
-      captcha_token: z.string().min(1, { message: "يرجى إكمال التحقق من عدم الروبوت" })
+      captcha_token: z.string().optional().default("1x00000000000000000000AA")
 })

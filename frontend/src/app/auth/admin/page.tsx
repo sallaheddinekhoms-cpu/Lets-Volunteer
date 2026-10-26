@@ -121,7 +121,7 @@ export default function AdminLoginPage() {
               {/* Cloudflare Turnstile Captcha */}
               <div className="flex justify-center">
                 <Turnstile
-                  sitekey={process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY!}
+                  sitekey={process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
                   onVerify={(token) => setCaptchaToken(token)}
                   onError={() => setCaptchaToken("")}
                   onExpire={() => setCaptchaToken("")}

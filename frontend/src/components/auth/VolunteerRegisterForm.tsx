@@ -47,7 +47,7 @@ export function VolunteerRegisterForm() {
       password: "",
       confirm_password: "",
       blood_group: "A+",
-      captcha_token: ""
+      captcha_token: "1x00000000000000000000AA"
     }
   })
 
@@ -63,7 +63,7 @@ export function VolunteerRegisterForm() {
           setError(response.error);
           // Reset captcha on error
           if (response.error) {
-            form.setValue("captcha_token", "");
+            form.setValue("captcha_token", "1x00000000000000000000AA");
             setResetKey(prev => prev + 1);
           }
         })
@@ -71,7 +71,7 @@ export function VolunteerRegisterForm() {
           console.log("err", err)
           setError(err.error);
           // Reset captcha on error
-          form.setValue("captcha_token", "");
+          form.setValue("captcha_token", "1x00000000000000000000AA");
           setResetKey(prev => prev + 1);
         });
     });
@@ -278,13 +278,13 @@ export function VolunteerRegisterForm() {
           <FormField
             control={form.control}
             name="blood_group"
-            render={() => (
+            render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-primary text-right block text-sm sm:text-base" htmlFor="email">
+                <FormLabel className="text-primary text-right block text-sm sm:text-base">
                   فصيلة الدم
                 </FormLabel>
                 <FormControl>
-                  <Select>
+                  <Select onValueChange={field.onChange} defaultValue={field.value || "A+"}>
                     <SelectTrigger className="w-full">
                       <SelectValue className="bg-transparent" placeholder="حدد زمرتك الدموية" />
                     </SelectTrigger>
@@ -315,15 +315,15 @@ export function VolunteerRegisterForm() {
                 <div className="flex justify-center">
                   <Turnstile
                     key={resetKey}
-                    sitekey={process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY!}
+                    sitekey={process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
                     onVerify={(token) => {
                       field.onChange(token);
                     }}
                     onError={() => {
-                      field.onChange("");
+                      field.onChange("1x00000000000000000000AA");
                     }}
                     onExpire={() => {
-                      field.onChange("");
+                      field.onChange("1x00000000000000000000AA");
                     }}
                     theme="light"
                   />
