@@ -8,20 +8,23 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   MapPin,
   Phone,
-  Mail,
   Droplet,
   CalendarDays,
   FileImage,
   FileArchive,
-  Star,
   Award,
   ShieldCheck,
   CheckCircle2,
+  Sparkles,
+  GraduationCap,
+  Wrench,
+  Truck,
+  Heart,
+  TrendingUp,
 } from "lucide-react"
 import type { Volunteer, VolunteerStats } from "@/types"
 import html2canvas from "html2canvas"
 import jsPDF from "jspdf"
-import { getCardTier, getNextTier } from "@/utils/cardTiers"
 
 interface VolunteerCardSectionProps {
   volunteer: Volunteer
@@ -34,19 +37,23 @@ const VolunteerCardSection: React.FC<VolunteerCardSectionProps> = ({ volunteer, 
     avatar,
     first_name,
     last_name,
-    email,
     phone_number,
     wilaya,
     daira,
     date_of_birth,
     blood_group,
+    credit_summary,
   } = volunteer
 
   const cardRef = useRef<HTMLDivElement>(null)
   const [isExporting, setIsExporting] = useState(false)
 
-  const currentTier = getCardTier(stats?.total_hours || 0)
-  const nextTier = getNextTier(stats?.total_hours || 0)
+  // Use the comprehensive credit summary from impact valuation system
+  const totalHours = credit_summary?.total_hours ?? (stats?.total_hours || 0)
+  const rankTitle = credit_summary?.rank_ar || "متطوع مبادر"
+  const rankColor = credit_summary?.rank_color || "#059669"
+  const progressPercent = credit_summary?.progress_to_next || 15
+  const nextTarget = credit_summary?.next_target || 25
 
   const nationalId = `DZ-VOL-2026-${String(id || 1001).padStart(5, "0")}`
 
@@ -118,15 +125,15 @@ const VolunteerCardSection: React.FC<VolunteerCardSectionProps> = ({ volunteer, 
           البطاقة الوطنية الرقمية للمتطوع الجزائري - معتمدة رسمياً
         </div>
         <p className="text-xs text-muted-foreground">
-          وثيقة رسمية رقمية تثبت قيدك في السجل الوطني للعمل التطوعي وتوثق ساعاتك التراكمية المعتمدة
+          وثيقة رسمية رقمية تثبت قيدك في السجل الوطني للعمل التطوعي وتوثق رصيد الأثر والساعات المعتمدة
         </p>
       </div>
 
       {/* Official Badge Card */}
       <div ref={cardRef} className="w-full max-w-md mx-auto">
-        <Card className="shadow-2xl overflow-hidden border-2 border-[#006D5B] bg-linear-to-b from-white to-emerald-50/30 rounded-2xl relative">
+        <Card className="shadow-2xl overflow-hidden border-2 border-[#006D5B] bg-gradient-to-b from-white to-emerald-50/30 rounded-2xl relative">
           {/* Top National Republic Header Banner */}
-          <div className="bg-linear-to-r from-[#004D40] via-[#006D5B] to-[#004D40] text-white pt-4 pb-3 px-5 text-center relative border-b-2 border-amber-400">
+          <div className="bg-gradient-to-r from-[#004D40] via-[#006D5B] to-[#004D40] text-white pt-4 pb-3 px-5 text-center relative border-b-2 border-amber-400">
             <p className="text-[10px] font-bold tracking-wider text-emerald-100">
               الجمهورية الجزائرية الديمقراطية الشعبية
             </p>
@@ -166,10 +173,20 @@ const VolunteerCardSection: React.FC<VolunteerCardSectionProps> = ({ volunteer, 
                   </h2>
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                 </div>
-                <p className="text-xs text-muted-foreground font-medium">متطوع معتمد في السجل الوطني</p>
+                
+                {/* Certified Rank Badge */}
+                <div className="flex items-center gap-1.5">
+                  <span
+                    style={{ backgroundColor: `${rankColor}15`, color: rankColor, borderColor: `${rankColor}40` }}
+                    className="text-[11px] font-black px-2 py-0.5 rounded-md border"
+                  >
+                    ★ {rankTitle}
+                  </span>
+                </div>
+
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-600 text-white text-xs font-bold shadow-xs">
                   <Award className="w-3.5 h-3.5 text-amber-300" />
-                  <span>{stats?.total_hours || 0} ساعة تطوع معتمدة</span>
+                  <span>{totalHours} ساعة أثر معتمدة</span>
                 </div>
               </div>
             </div>
@@ -213,7 +230,6 @@ const VolunteerCardSection: React.FC<VolunteerCardSectionProps> = ({ volunteer, 
 
             {/* Bottom Official Stamp & Verification QR */}
             <div className="pt-2 border-t border-border/60 flex items-center justify-between">
-              {/* Official Seal Watermark Stamp */}
               <div className="border border-emerald-600/30 rounded-lg p-1.5 bg-emerald-500/5 text-center flex-1 ml-3">
                 <p className="text-[8px] font-bold text-emerald-800 dark:text-emerald-300">
                   الختم الإلكتروني المعتمد • ONSC / CSJ
@@ -223,7 +239,6 @@ const VolunteerCardSection: React.FC<VolunteerCardSectionProps> = ({ volunteer, 
                 </p>
               </div>
 
-              {/* QR verification code representation */}
               <div className="shrink-0 flex items-center gap-2 p-1 bg-white rounded-lg border border-border shadow-xs">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -235,6 +250,73 @@ const VolunteerCardSection: React.FC<VolunteerCardSectionProps> = ({ volunteer, 
             </div>
           </div>
         </Card>
+      </div>
+
+      {/* Impact Breakdown Matrix Card */}
+      <div className="w-full max-w-xl mx-auto bg-card border rounded-2xl p-5 shadow-sm space-y-4">
+        <div className="flex items-center justify-between border-b pb-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-emerald-600" />
+            <h4 className="font-bold text-sm text-foreground">تفصيل رصيد الأثر التطوعي المعتمد</h4>
+          </div>
+          <span className="text-xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-bold">
+            الإجمالي: {totalHours} ساعة
+          </span>
+        </div>
+
+        {/* Progress bar towards next rank */}
+        <div className="space-y-1.5 bg-muted/40 p-3 rounded-xl border border-border/50">
+          <div className="flex justify-between text-xs font-semibold">
+            <span className="flex items-center gap-1 text-emerald-700">
+              <TrendingUp className="w-3.5 h-3.5" /> التقدم نحو الرتبة التالية ({nextTarget} ساعة)
+            </span>
+            <span className="font-bold">{progressPercent}%</span>
+          </div>
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+            <div
+              className="bg-emerald-600 h-2.5 rounded-full transition-all duration-500"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+        </div>
+
+        {/* 5 Impact Metrics Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1">
+          <div className="p-3 bg-emerald-50/70 border border-emerald-200/60 rounded-xl text-right">
+            <div className="flex items-center gap-1 text-emerald-800 text-[11px] font-bold mb-1">
+              <Award className="w-3.5 h-3.5" /> الجهد الميداني (x1.5)
+            </div>
+            <p className="text-lg font-black text-emerald-900">{credit_summary?.fieldwork_hours ?? (stats?.total_hours || 0)} <span className="text-xs font-normal">س</span></p>
+          </div>
+
+          <div className="p-3 bg-teal-50/70 border border-teal-200/60 rounded-xl text-right">
+            <div className="flex items-center gap-1 text-teal-800 text-[11px] font-bold mb-1">
+              <GraduationCap className="w-3.5 h-3.5" /> ساعات التكوين
+            </div>
+            <p className="text-lg font-black text-teal-900">{credit_summary?.training_hours ?? 0} <span className="text-xs font-normal">س</span></p>
+          </div>
+
+          <div className="p-3 bg-indigo-50/70 border border-indigo-200/60 rounded-xl text-right">
+            <div className="flex items-center gap-1 text-indigo-800 text-[11px] font-bold mb-1">
+              <Wrench className="w-3.5 h-3.5" /> المهارة والتخصص
+            </div>
+            <p className="text-lg font-black text-indigo-900">{credit_summary?.skill_hours ?? 0} <span className="text-xs font-normal">س</span></p>
+          </div>
+
+          <div className="p-3 bg-amber-50/70 border border-amber-200/60 rounded-xl text-right">
+            <div className="flex items-center gap-1 text-amber-800 text-[11px] font-bold mb-1">
+              <Truck className="w-3.5 h-3.5" /> الدعم اللوجستي
+            </div>
+            <p className="text-lg font-black text-amber-900">{credit_summary?.logistics_hours ?? 0} <span className="text-xs font-normal">س</span></p>
+          </div>
+
+          <div className="p-3 bg-rose-50/70 border border-rose-200/60 rounded-xl text-right sm:col-span-2">
+            <div className="flex items-center gap-1 text-rose-800 text-[11px] font-bold mb-1">
+              <Heart className="w-3.5 h-3.5" /> حوافز الوفاء والانطلاقة
+            </div>
+            <p className="text-lg font-black text-rose-900">{credit_summary?.milestone_hours ?? 0} <span className="text-xs font-normal">س</span></p>
+          </div>
+        </div>
       </div>
 
       {/* Export & Print Buttons */}

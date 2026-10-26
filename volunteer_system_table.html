@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+  
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    font-family: 'Tajawal', 'Segoe UI', Tahoma, sans-serif;
+    background: #0f172a;
+    padding: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #1e293b;
+    -webkit-font-smoothing: antialiased;
+  }
+  
+  .card {
+    background: #ffffff;
+    width: 1140px;
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+  }
+  
+  .header {
+    background: linear-gradient(135deg, #065f46 0%, #047857 50%, #0d9488 100%);
+    color: white;
+    padding: 35px 40px;
+    position: relative;
+  }
+  
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 0;
+    right: 0;
+    height: 15px;
+    background: linear-gradient(to right, #10b981, #f59e0b, #10b981);
+  }
+  
+  .badge-top {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(8px);
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+  }
+  
+  .title {
+    font-size: 28px;
+    font-weight: 900;
+    line-height: 1.3;
+    margin-bottom: 8px;
+  }
+  
+  .subtitle {
+    font-size: 15px;
+    color: #d1fae5;
+    font-weight: 500;
+  }
+  
+  .content {
+    padding: 35px 40px;
+  }
+  
+  .table-container {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    margin-bottom: 30px;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: right;
+    font-size: 13.5px;
+  }
+  
+  thead {
+    background: #f1f5f9;
+  }
+  
+  th {
+    padding: 14px 18px;
+    font-weight: 800;
+    color: #334155;
+    border-bottom: 2px solid #cbd5e1;
+    font-size: 14px;
+  }
+  
+  td {
+    padding: 13px 18px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    vertical-align: middle;
+  }
+  
+  tr:last-child td {
+    border-bottom: none;
+  }
+  
+  tr:nth-child(even) {
+    background: #f8fafc;
+  }
+  
+  .cat-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 12px;
+  }
+  
+  .cat-field { background: #dcfce7; color: #166534; }
+  .cat-skill-a { background: #e0f2fe; color: #075985; }
+  .cat-skill-b { background: #e0e7ff; color: #3730a3; }
+  .cat-skill-c { background: #f3e8ff; color: #6b21a8; }
+  .cat-training { background: #ccfbf1; color: #115e59; }
+  .cat-logistics { background: #ffedd5; color: #9a3412; }
+  .cat-quality { background: #fef3c7; color: #92400e; }
+  .cat-loyalty { background: #fce7f3; color: #9d174d; }
+  
+  .val-pill {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 900;
+    font-size: 13px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  
+  .val-green { background: #10b981; color: white; }
+  .val-blue { background: #2563eb; color: white; }
+  .val-purple { background: #7c3aed; color: white; }
+  .val-amber { background: #f59e0b; color: white; }
+  .val-teal { background: #0d9488; color: white; }
+  .val-rose { background: #e11d48; color: white; }
+  .val-gray { background: #64748b; color: white; }
+
+  /* Practical Example Section */
+  .example-box {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 1px solid #cbd5e1;
+    border-radius: 16px;
+    padding: 24px 28px;
+  }
+  
+  .example-title {
+    font-size: 16px;
+    font-weight: 900;
+    color: #0f172a;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .example-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  
+  .example-card {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    position: relative;
+    border-top: 4px solid #64748b;
+  }
+  
+  .card-a { border-top-color: #3b82f6; }
+  .card-b { border-top-color: #8b5cf6; }
+  .card-c { border-top-color: #10b981; }
+  
+  .ec-role {
+    font-size: 13px;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+  
+  .ec-tasks {
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 12px;
+    min-height: 38px;
+    line-height: 1.4;
+  }
+  
+  .ec-calc {
+    font-size: 12px;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: #f8fafc;
+    padding: 6px 10px;
+    border-radius: 6px;
+    color: #475569;
+    font-weight: 600;
+    direction: ltr;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  
+  .ec-total {
+    font-size: 14px;
+    font-weight: 900;
+    color: #047857;
+    text-align: center;
+  }
+  
+  .footer {
+    padding: 18px 40px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="header">
+    <div class="badge-top">الجمهورية الجزائرية الديمقراطية الشعبية • منصة «لنتطوع»</div>
+    <h1 class="title">نظام احتساب وتثمين رصيد الأثر والساعات التطوعية</h1>
+    <p class="subtitle">المصفوفة المعيارية المعتمدة لتقييم الجهد الميداني، التخصص والمهارة، والدعم اللوجستي</p>
+  </div>
+  
+  <div class="content">
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 22%;">الفئة / المحور</th>
+            <th style="width: 25%;">العنصر والدور الميداني</th>
+            <th style="width: 22%;">طريقة الاحتساب</th>
+            <th style="width: 15%; text-align: center;">الرصيد المعتمد</th>
+            <th style="width: 16%;">الأثر والتوثيق</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="cat-badge cat-field">1. التواجد الميداني</span></td>
+            <td><strong>حضور وإنجاز الفرصة التطوعية</strong></td>
+            <td>ساعات الحضور الفعلي × 1.5</td>
+            <td style="text-align: center;"><span class="val-pill val-green">1.5 س / ساعة ميدان</span></td>
+            <td>معامل الجهد البدني والطقس</td>
+          </tr>
+          <tr>
+            <td rowspan="3"><span class="cat-badge cat-skill-b">2. مستوى المهارة والتخصص</span></td>
+            <td><strong>أ) مساهم عام / هاوي (Support)</strong></td>
+            <td>المعامل الأساسي (1.0x)</td>
+            <td style="text-align: center;"><span class="val-pill val-gray">بدون بونص</span></td>
+            <td>تنظيف، مساعدة، نقل مستلزمات</td>
+          </tr>
+          <tr>
+            <td><strong>ب) منفذ فني متخصص (Specialist)</strong></td>
+            <td>بونص المهارة التخصصية</td>
+            <td style="text-align: center;"><span class="val-pill val-blue">+2 ساعات إضافية</span></td>
+            <td>حرفي دهان، كهرباء، صيانة، تمريض</td>
+          </tr>
+          <tr>
+            <td><strong>ج) قائد ورشة / مؤطر فني (Lead)</strong></td>
+            <td>بونص تأطير وإدارة العمل</td>
+            <td style="text-align: center;"><span class="val-pill val-purple">+3 ساعات إضافية</span></td>
+            <td>إشراف تقني وتدريب المتطوعين</td>
+          </tr>
+          <tr>
+            <td><span class="cat-badge cat-training">3. التكوين والتأهيل</span></td>
+            <td><strong>دورات وورشات المنصة</strong></td>
+            <td>1 ساعة لكل ساعة تكوين</td>
+            <td style="text-align: center;"><span class="val-pill val-teal">ساعات الدورة كاملة</span></td>
+            <td>إسعافات، تسيير أزمات، مهارات</td>
+          </tr>
+          <tr>
+            <td rowspan="3"><span class="cat-badge cat-logistics">4. الدعم اللوجستي والمادي</span></td>
+            <td><strong>توفير وسيلة نقل خاصة</strong></td>
+            <td>بونص نقل المتطوعين أو العتاد</td>
+            <td style="text-align: center;"><span class="val-pill val-amber">+3 ساعات</span></td>
+            <td>تخفيف العبء المالي عن الجمعية</td>
+          </tr>
+          <tr>
+            <td><strong>توفير عتاد وأدوات عمل متخصصة</strong></td>
+            <td>بونص عتاد ميداني</td>
+            <td style="text-align: center;"><span class="val-pill val-amber">+2 ساعات</span></td>
+            <td>معدات طلاء، لحام، أدوات إسعاف</td>
+          </tr>
+          <tr>
+            <td><strong>مساهمة عينية أو تمويلية للحملة</strong></td>
+            <td>بونص دعم وتمويل</td>
+            <td style="text-align: center;"><span class="val-pill val-amber">+3 ساعات</span></td>
+            <td>توثيق صفة "متطوع وداعم"</td>
+          </tr>
+          <tr>
+            <td><span class="cat-badge cat-quality">5. جودة الأداء والانضباط</span></td>
+            <td><strong>تقييم ممتاز (5/5) من الجمعية</strong></td>
+            <td>مكافأة حسن الخلق والالتزام</td>
+            <td style="text-align: center;"><span class="val-pill val-green">+1 ساعة بونص</span></td>
+            <td>الالتزام بالوقت وروح التعاون</td>
+          </tr>
+          <tr>
+            <td rowspan="3"><span class="cat-badge cat-loyalty">6. محطات الولاء والمسار</span></td>
+            <td><strong>مكافأة الانطلاقة الأولى</strong></td>
+            <td>تُمنح عند إتمام أول فرصة بنجاح</td>
+            <td style="text-align: center;"><span class="val-pill val-rose">+2 ساعات</span></td>
+            <td>تفعيل تلقائي لمرة واحدة</td>
+          </tr>
+          <tr>
+            <td><strong>حافز الاستمرارية (Milestone)</strong></td>
+            <td>كل 5 مشاركات تطوعية ناجحة</td>
+            <td style="text-align: center;"><span class="val-pill val-rose">+3 ساعات</span></td>
+            <td>مكافأة تراكمية دورية</td>
+          </tr>
+          <tr>
+            <td><strong>الأقدمية السنوية في المنصة</strong></td>
+            <td>سنة كاملة مع شرط النشاط</td>
+            <td style="text-align: center;"><span class="val-pill val-rose">+3 ساعات / سنوياً</span></td>
+            <td>تثمين وفاء واستمرارية المتطوع</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Case Study -->
+    <div class="example-box">
+      <div class="example-title">
+        <span>🔍 نموذج تطبيقي مقارن: حملة طلاء وتهيئة مدرسة ابتدائية (مدة النشاط الميداني: 4 ساعات)</span>
+      </div>
+      <div class="example-grid">
+        <div class="example-card card-a">
+          <div class="ec-role" style="color: #2563eb;">المتطوع (أ): هاوي / مساهم عام</div>
+          <div class="ec-tasks">تنظيف الجدران، نقل علب الطلاء ومساعدة الفريق الميداني.</div>
+          <div class="ec-calc">4h × 1.5</div>
+          <div class="ec-total">6 ساعات معتمدة</div>
+        </div>
+        
+        <div class="example-card card-b">
+          <div class="ec-role" style="color: #7c3aed;">المتطوع (ب): دهّان متخصص</div>
+          <div class="ec-tasks">الطلاء الاحترافي والتشطيب الدقيق للجدران + تقييم 5 نجوم.</div>
+          <div class="ec-calc">(4h × 1.5) + 2h + 1h</div>
+          <div class="ec-total">9 ساعات معتمدة</div>
+        </div>
+        
+        <div class="example-card card-c">
+          <div class="ec-role" style="color: #059669;">المتطوع (ج): مؤطر فني مع عتاده</div>
+          <div class="ec-tasks">أشرف على العمل، جلب أجهزة طلاء خاصة، وقاد الفريق + تقييم 5 نجوم.</div>
+          <div class="ec-calc">(4h × 1.5) + 3h + 2h + 1h</div>
+          <div class="ec-total">12 ساعة معتمدة</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>منصة «لنتطوع» الجزائرية • النظام الوطني لمعادلة وتثمين رصيد العمل التطوعي</span>
+    <span>مطابق لأحكام القانون 12-06 المنظم للجمعيات والعمل التطوعي</span>
+  </div>
+</div>
+
+</body>
+</html>

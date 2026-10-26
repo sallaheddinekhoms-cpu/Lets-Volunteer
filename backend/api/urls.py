@@ -6,7 +6,15 @@ from .views.opportunity_views import OpportunityListCreate, OpportunityRetrieveU
 from .views.volunteer_views import VolunteerProfileViewDeleteUpdate, VolunteerProfileList
 from .views.organization_views import OrganizationProfileViewUpdate, OrganizationList, OrganizationConfirm, OrganizationUnconfirm
 from .views.category_views import CategoryListCreateAPIView, CategoryUpdateDestroyAPIView
-from .views.participation_views import AcceptInvitation, InviteVolunteer, ParticipationListCreate, ParticipationRetrieveUpdateDestroy
+from .views.participation_views import (
+    AcceptInvitation,
+    InviteVolunteer,
+    ParticipationListCreate,
+    ParticipationRetrieveUpdateDestroy,
+    CompleteParticipationView,
+    VolunteerRateOrganizationView,
+    VolunteerCreditSummaryView,
+)
 from .views.aid_views import AidListCreate, AidTypeListCreate, AidTypeRetriveUpdateDestroy, ExcelTemplateDownloadView, ExcelUploadView
 from .views.stats_views import VolunteerStatsView, TopVolunteersView
 from .views.article_views import ArticleListCreateAPIView, ArticleRetrieveAPIView
@@ -19,6 +27,9 @@ from .views.extended_views import (
     OrganizationContactsView,
     SupportTicketView,
     TrainingCourseListView,
+    TrainingCourseEnrollView,
+    TrainingCourseCompleteView,
+    OrganizationLeaderboardView,
     SolidarityItemListView,
     SolidarityRequestListView,
     AdminSolidarityRequestView,
@@ -26,6 +37,7 @@ from .views.extended_views import (
 )
 
 volunteer_urls = [
+    path('volunteers/my-credits/', VolunteerCreditSummaryView.as_view(), name='volunteer-my-credits'),
     path('volunteer/<str:volunteer_id>/', VolunteerProfileViewDeleteUpdate.as_view(), name='volunteer-profile-update'),
     path('volunteers/', VolunteerProfileList.as_view(), name='volunteer-profile-list'),
 ]
@@ -43,6 +55,8 @@ organization_urls = [
 ]
 
 participation_urls = [
+    path('participation/<int:participation_id>/complete/', CompleteParticipationView.as_view(), name='participation-complete'),
+    path('participation/<int:participation_id>/rate-organization/', VolunteerRateOrganizationView.as_view(), name='participation-rate-org'),
     path('participation/<int:pk>/certificate/', ParticipationCertificate.as_view(), name='participation-certificate'),
     path('participation/', ParticipationListCreate.as_view(), name='participation-list-create'),
     path('participation/<str:pk>/', ParticipationRetrieveUpdateDestroy.as_view(), name='participation-retrieve-update-destroy'),
@@ -112,6 +126,9 @@ extended_urls = [
     path('organization/contacts/', OrganizationContactsView.as_view(), name='organization-contacts'),
     path('tickets/', SupportTicketView.as_view(), name='support-tickets'),
     path('trainings/', TrainingCourseListView.as_view(), name='training-courses'),
+    path('trainings/<uuid:course_id>/enroll/', TrainingCourseEnrollView.as_view(), name='training-course-enroll'),
+    path('trainings/<uuid:course_id>/complete/', TrainingCourseCompleteView.as_view(), name='training-course-complete'),
+    path('organizations/leaderboard/', OrganizationLeaderboardView.as_view(), name='organization-leaderboard'),
     path('solidarity-store/', SolidarityItemListView.as_view(), name='solidarity-store'),
     path('solidarity-requests/', SolidarityRequestListView.as_view(), name='solidarity-requests'),
     path('admin/solidarity-requests/', AdminSolidarityRequestView.as_view(), name='admin-solidarity-requests'),

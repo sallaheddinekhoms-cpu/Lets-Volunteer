@@ -101,6 +101,11 @@ class Participation(models.Model):
         PENDING = "pending"
         ACCEPTED = "accepted"
         DONE = "done"
+
+    class SkillLevel(models.TextChoices):
+        GENERAL = "general", "مساهم عام / هاوي"
+        SPECIALIST = "specialist", "منفذ فني متخصص (+2 س)"
+        LEAD = "lead", "قائد ورشة / مؤطر فني (+3 س)"
         
     opportunity = models.ForeignKey(Opportunity, on_delete=models.CASCADE, related_name="participations")
     volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, related_name="participations")
@@ -119,6 +124,25 @@ class Participation(models.Model):
     )
     organization_feedback = models.TextField(null=True, blank=True)
     volunteer_feedback = models.TextField(null=True, blank=True)
+
+    # Valuation & Impact System fields
+    skill_level = models.CharField(
+        max_length=20,
+        choices=SkillLevel.choices,
+        default=SkillLevel.GENERAL
+    )
+    provided_transport = models.BooleanField(default=False)
+    provided_equipment = models.BooleanField(default=False)
+    provided_donation = models.BooleanField(default=False)
+    
+    # Reverse rating: volunteer rates organization
+    volunteer_org_rating = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
+    volunteer_org_feedback = models.TextField(null=True, blank=True)
+    calculated_credit_hours = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
     
     invited = models.BooleanField(default=False)
     invite_accepted = models.BooleanField(default=False)
@@ -289,6 +313,7 @@ class TrainingCourse(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=200)
     trainer_or_provider = models.CharField(max_length=150)
+    organization = models.ForeignKey(Organization, on_delete=models.SET_NULL, null=True, blank=True, related_name="training_courses_organized", db_constraint=False)
     description = models.TextField()
     is_online = models.BooleanField(default=False)
     location = models.CharField(max_length=200, null=True, blank=True)
@@ -371,4 +396,79 @@ class SolidarityRequest(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.requester_name} ({self.get_status_display()})"
+
+
+class TrainingEnrollment(models.Model):
+    """Tracks volunteer enrollment and certified completion of training courses."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    course = models.ForeignKey(TrainingCourse, on_delete=models.CASCADE, related_name="enrollments")
+    volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, related_name="training_enrollments", db_constraint=False)
+    is_completed = models.BooleanField(default=False)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('course', 'volunteer')
+
+    def __str__(self):
+        return f"{self.volunteer} in {self.course.title} (Completed: {self.is_completed})"
+
+
+class VolunteerCreditLog(models.Model):
+    """Granular audit trail for all awarded volunteering impact credit hours."""
+    class CreditType(models.TextChoices):
+        FIELDWORK = "fieldwork", "الجهد الميداني (x1.5)"
+        SKILL_BONUS = "skill_bonus", "بونص المهارة والتخصص"
+        TRAINING = "training", "تكوين وتأهيل"
+        TRANSPORT = "transport", "توفير وسيلة نقل"
+        EQUIPMENT = "equipment", "توفير عتاد وأدوات"
+        DONATION = "donation", "دعم عيني أو تمويلي"
+        RATING_BONUS = "rating_bonus", "بونص التقييم المتميز"
+        FIRST_MILESTONE = "first_milestone", "مكافأة الانطلاقة الأولى"
+        LOYALTY_MILESTONE = "loyalty_milestone", "حافز الاستمرارية (كل 5 مشاركات)"
+        SENIORITY = "seniority", "الأقدمية السنوية"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, related_name="credit_logs", db_constraint=False)
+    credit_type = models.CharField(max_length=30, choices=CreditType.choices)
+    hours = models.DecimalField(max_digits=6, decimal_places=2)
+    description = models.CharField(max_length=255)
+    participation = models.ForeignKey(Participation, on_delete=models.SET_NULL, null=True, blank=True, related_name="credits_awarded")
+    training_course = models.ForeignKey(TrainingCourse, on_delete=models.SET_NULL, null=True, blank=True, related_name="credits_awarded")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.volunteer} - {self.get_credit_type_display()}: {self.hours} hrs"
+
+
+class OrganizationImpact(models.Model):
+    """National Civic Impact & Excellence Index for Volunteer Organizations."""
+    class Tier(models.TextChoices):
+        EMERGING = "emerging", "جمعية ناشئة ومبادرة"
+        ACTIVE = "active", "جمعية نشطة وموثوقة"
+        PIONEER = "pioneer", "هيئة رائدة في العمل التطوعي"
+        STRATEGIC_PARTNER = "strategic_partner", "شريك استراتيجي في النفع العام"
+
+    organization = models.OneToOneField(Organization, on_delete=models.CASCADE, related_name="impact_profile", db_constraint=False)
+    impact_points = models.IntegerField(default=20)
+    tier = models.CharField(max_length=30, choices=Tier.choices, default=Tier.EMERGING)
+
+    avg_volunteer_rating = models.DecimalField(max_digits=3, decimal_places=2, default=5.00)
+    total_ratings_count = models.PositiveIntegerField(default=0)
+
+    badge_volunteer_friendly = models.BooleanField(default=False)
+    badge_training_incubator = models.BooleanField(default=False)
+    badge_rapid_response = models.BooleanField(default=False)
+
+    opportunities_completed = models.PositiveIntegerField(default=0)
+    trainings_organized = models.PositiveIntegerField(default=0)
+    new_volunteers_onboarded = models.PositiveIntegerField(default=0)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.organization.organization_name} - {self.get_tier_display()} ({self.impact_points} pts)"
 

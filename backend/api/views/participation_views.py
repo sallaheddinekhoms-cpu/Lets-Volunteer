@@ -77,10 +77,112 @@ class ParticipationRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
             return Participation.objects.none()
       
       def perform_update(self, serializer):
-            print("data",serializer.validated_data)
+            print("data", serializer.validated_data)
             if self.request.user.role == Profile.Role.VOLUNTEER:
                   serializer.save(volunteer=self.request.user.volunteer)
-            serializer.save()
+            instance = serializer.save()
+            if instance.status == Participation.StatusChoices.DONE:
+                  from api.impact_services import ImpactService
+                  ImpactService.award_participation_credits(instance)
+
+
+class CompleteParticipationView(APIView):
+      """
+      Endpoint for Organizations to complete a volunteer's participation
+      with full evaluation: skill level, transport, equipment, donation, and rating.
+      """
+      permission_classes = [IsAuthenticated]
+
+      def post(self, request, participation_id):
+            try:
+                  participation = Participation.objects.get(id=participation_id)
+            except Participation.DoesNotExist:
+                  return Response({'error': 'Participation not found'}, status=404)
+
+            # Check permissions
+            user = request.user
+            if not user.is_staff and (user.role != Profile.Role.ORGANIZATION or participation.opportunity.organization != user.organization):
+                  return Response({'error': 'Unauthorized to evaluate this participation'}, status=403)
+
+            # Extract fields
+            hours_worked = request.data.get('hours_worked', participation.opportunity.duration or 4)
+            rating = request.data.get('rating', 5)
+            skill_level = request.data.get('skill_level', Participation.SkillLevel.GENERAL)
+            provided_transport = bool(request.data.get('provided_transport', False))
+            provided_equipment = bool(request.data.get('provided_equipment', False))
+            provided_donation = bool(request.data.get('provided_donation', False))
+            org_feedback = request.data.get('organization_feedback', '')
+
+            participation.status = Participation.StatusChoices.DONE
+            participation.hours_worked = int(hours_worked) if hours_worked else 4
+            participation.rating = int(rating) if rating else 5
+            participation.skill_level = skill_level
+            participation.provided_transport = provided_transport
+            participation.provided_equipment = provided_equipment
+            participation.provided_donation = provided_donation
+            if org_feedback:
+                  participation.organization_feedback = org_feedback
+            participation.save()
+
+            # Award credits
+            from api.impact_services import ImpactService
+            awarded = ImpactService.award_participation_credits(participation)
+
+            return Response({
+                  'success': True,
+                  'participation_id': str(participation.id),
+                  'status': participation.status,
+                  'calculated_credit_hours': float(awarded),
+                  'message': f'تم تأكيد المشاركة بنجاح ومنح {awarded} ساعة تطوعية معتمدة'
+            }, status=200)
+
+
+class VolunteerRateOrganizationView(APIView):
+      """
+      Reverse evaluation: Volunteer rates and gives feedback to the organization.
+      """
+      permission_classes = [IsAuthenticated]
+
+      def post(self, request, participation_id):
+            try:
+                  participation = Participation.objects.get(id=participation_id)
+            except Participation.DoesNotExist:
+                  return Response({'error': 'Participation not found'}, status=404)
+
+            if participation.volunteer != request.user.volunteer:
+                  return Response({'error': 'Only the volunteer can rate the organization'}, status=403)
+
+            rating = request.data.get('rating')
+            feedback = request.data.get('feedback', '')
+
+            if not rating or not (1 <= int(rating) <= 5):
+                  return Response({'error': 'Rating must be between 1 and 5'}, status=400)
+
+            participation.volunteer_org_rating = int(rating)
+            participation.volunteer_org_feedback = feedback
+            participation.save(update_fields=['volunteer_org_rating', 'volunteer_org_feedback'])
+
+            # Recalculate organization impact
+            from api.impact_services import ImpactService
+            ImpactService.recalculate_organization_impact(participation.opportunity.organization)
+
+            return Response({
+                  'success': True,
+                  'message': 'شكراً لك! تم تسجيل تقييمك للجمعية بنجاح والمساهمة في مؤشر تميزها.'
+            }, status=200)
+
+
+class VolunteerCreditSummaryView(APIView):
+      """Returns detailed breakdown of volunteer's earned credit hours and ranking."""
+      permission_classes = [IsAuthenticated]
+
+      def get(self, request):
+            if request.user.role != Profile.Role.VOLUNTEER:
+                  return Response({'error': 'Available only for volunteer accounts'}, status=403)
+
+            from api.impact_services import ImpactService
+            summary = ImpactService.get_volunteer_credit_summary(request.user.volunteer)
+            return Response(summary, status=200)
       
      
       

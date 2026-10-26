@@ -3,6 +3,9 @@ export interface AcessTokenData {
       role: string;
 }
 
+import type { VolunteerCreditSummary, OrganizationImpact } from "./participation";
+export type { VolunteerCreditSummary, OrganizationImpact, CreditLogItem } from "./participation";
+
 export interface Skill {
       id: string;
       name: string;
@@ -22,6 +25,7 @@ export interface Volunteer {
       already_applied?: boolean;
       blood_group?: string;
       skills?: { id? : number , skill : Skill }[];
+      credit_summary?: VolunteerCreditSummary;
 }
 
 
@@ -39,6 +43,7 @@ export interface Organization {
       phone_number?: string;
       email?: string;
       is_confirmed?: boolean;
+      impact?: OrganizationImpact;
     }
     
 export interface Opportunity {

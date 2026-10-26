@@ -5,21 +5,41 @@ from api.serializers.skills_serializers import  VolunteerSkillSerializer
 
 
 class VolunteerProfileSerializer(serializers.ModelSerializer):
-      
-      
       avatar = serializers.SerializerMethodField()
       skills = VolunteerSkillSerializer(many=True, read_only=True)
+      credit_summary = serializers.SerializerMethodField()
       
       def get_avatar(self, obj):
           if obj.avatar:
               return obj.avatar.url
           return None
+
+      def get_credit_summary(self, obj):
+          try:
+              from api.impact_services import ImpactService
+              return ImpactService.get_volunteer_credit_summary(obj)
+          except Exception as e:
+              return {
+                  "total_hours": 0.0,
+                  "fieldwork_hours": 0.0,
+                  "training_hours": 0.0,
+                  "skill_hours": 0.0,
+                  "logistics_hours": 0.0,
+                  "milestone_hours": 0.0,
+                  "rank": "initiator",
+                  "rank_ar": "متطوع مبادر",
+                  "rank_color": "#f59e0b",
+                  "progress_to_next": 0,
+                  "next_target": 25,
+                  "recent_logs": [],
+              }
       
       class Meta:
             model = Volunteer
             fields = [
             'id', 'email', 'first_name', 'last_name', 'wilaya', 
-            'daira', 'phone_number', 'date_of_birth', 'blood_group','avatar','skills'
+            'daira', 'phone_number', 'date_of_birth', 'blood_group','avatar','skills',
+            'credit_summary'
             ]
             read_only_fields = ['id','email']
 

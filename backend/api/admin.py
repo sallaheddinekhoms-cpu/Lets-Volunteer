@@ -14,6 +14,10 @@ from .models import (
     Announcement,
     SolidarityItem,
     SolidarityRequest,
+    TrainingCourse,
+    TrainingEnrollment,
+    VolunteerCreditLog,
+    OrganizationImpact,
 )
 
 admin.site.register(Category)
@@ -29,6 +33,23 @@ admin.site.register(Announcement)
 admin.site.register(SolidarityItem)
 admin.site.register(Skill)
 admin.site.register(VolunteerSkill)
+admin.site.register(TrainingCourse)
+admin.site.register(TrainingEnrollment)
+
+
+@admin.register(VolunteerCreditLog)
+class VolunteerCreditLogAdmin(admin.ModelAdmin):
+    list_display = ('volunteer', 'credit_type', 'hours', 'description', 'created_at')
+    list_filter = ('credit_type', 'created_at')
+    search_fields = ('volunteer__first_name', 'volunteer__last_name', 'description')
+
+
+@admin.register(OrganizationImpact)
+class OrganizationImpactAdmin(admin.ModelAdmin):
+    list_display = ('organization', 'impact_points', 'tier', 'avg_volunteer_rating', 'opportunities_completed', 'trainings_organized')
+    list_filter = ('tier', 'badge_volunteer_friendly', 'badge_training_incubator')
+    search_fields = ('organization__organization_name',)
+
 
 
 @admin.register(Participation)

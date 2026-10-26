@@ -115,5 +115,55 @@ export async function sendInvitaions ( volunteer_ids: string[] , opportuniy_id:s
       )
 
       return { data, status } 
+}
 
+export async function completeParticipationWithValuation(
+      participation_id: number,
+      dataPayload: {
+            hours_worked: number;
+            rating: number;
+            skill_level: "general" | "specialist" | "lead";
+            provided_transport: boolean;
+            provided_equipment: boolean;
+            provided_donation: boolean;
+            organization_feedback?: string;
+      }
+): Promise<{ data: any; status: number }> {
+      const { data, status } = await Backend.post(
+            `participation/${participation_id}/complete/`,
+            {
+                  withCredentials: true,
+                  body: dataPayload
+            }
+      );
+      updateTag("participations");
+      return { data, status };
+}
+
+export async function rateOrganizationAsVolunteer(
+      participation_id: number | string,
+      rating: number,
+      feedback?: string
+): Promise<{ data: any; status: number }> {
+      const { data, status } = await Backend.post(
+            `participation/${participation_id}/rate-organization/`,
+            {
+                  withCredentials: true,
+                  body: { rating, feedback }
+            }
+      );
+      updateTag("participations");
+      return { data, status };
+}
+
+export async function getVolunteerCredits(): Promise<any> {
+      try {
+            const { data } = await Backend.get("volunteers/my-credits/", {
+                  withCredentials: true
+            });
+            return data;
+      } catch (err) {
+            console.error("Error fetching volunteer credits:", err);
+            return null;
+      }
 }

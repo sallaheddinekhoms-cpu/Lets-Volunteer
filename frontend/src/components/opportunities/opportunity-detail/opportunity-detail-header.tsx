@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { MapPin, Building2, Timer } from 'lucide-react';
+import { MapPin, Building2, Timer, Sparkles, Award } from 'lucide-react';
 import { format, formatDistanceToNow } from "date-fns";
 import { ar } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
@@ -161,8 +161,16 @@ const OpportunityDetailHeader: React.FC<OpportunityDetailHeaderProps> = (
                               </div>
                         </div>
 
-
-
+                        {/* National Volunteering Impact Equivalency Banner */}
+                        <div className="p-3 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 rounded-xl border border-emerald-200/80 flex items-center justify-between flex-wrap gap-2">
+                              <div className="flex items-center gap-2 text-emerald-950 text-xs font-bold">
+                                    <Sparkles className="w-4 h-4 text-emerald-600" />
+                                    <span>نظام تثمين الساعات المعتمدة: كل ساعة حضور في الميدان تُحسب بـ 1.5 ساعة تطوعية</span>
+                              </div>
+                              <span className="text-[11px] bg-emerald-600 text-white font-bold px-2.5 py-1 rounded-full shadow-xs">
+                                    + بونص التخصص المهني واللوجستيك
+                              </span>
+                        </div>
                   </div>
                   {isAdmin ? (
                         <Button onClick={()=>{setshowActivationChangingStatus(true)}} variant={is_active ? "destructive" : "default"} className="w-1/4 text-white" >

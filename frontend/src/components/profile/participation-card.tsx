@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { Button } from "../ui/button"
 import { toast } from "react-toastify"
-import { cancelParticipation, participationStats } from "@/data/Participations"
+import { cancelParticipation, participationStats, rateOrganizationAsVolunteer } from "@/data/Participations"
 import {
   AlertTriangle,
   Calendar,
@@ -19,6 +19,9 @@ import {
   XCircle,
   AlertCircle,
   BarChart,
+  Sparkles,
+  ShieldCheck,
+  Star,
 } from "lucide-react"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -51,6 +54,7 @@ interface ParticipationCardProps {
 const ParticipationCard: React.FC<ParticipationCardProps> = ({ participation }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [feedback, setFeedback] = useState(participation.volunteer_feedback || "")
+  const [orgRating, setOrgRating] = useState<number>(participation.volunteer_org_rating || 5)
   const [isStatsOpen, setIsStatsOpen] = useState(false)
 
  
@@ -71,25 +75,20 @@ const ParticipationCard: React.FC<ParticipationCardProps> = ({ participation }) 
     }
   }
 
-  const handleSubmitFeedback = () => {
-
-    const feedbackData = {
-      volunteer_feedback: feedback,
+  const handleSubmitFeedback = async () => {
+    try {
+      await toast.promise(
+        rateOrganizationAsVolunteer(participation.id, orgRating, feedback),
+        {
+          pending: "جاري تسجيل تقييمك للجمعية...",
+          success: "شكراً لك! تم تسجيل تقييمك بنجاح والمساهمة في مؤشر تميز الجمعية.",
+          error: "حدث خطأ أثناء إرسال التقييم"
+        }
+      )
+      setIsStatsOpen(false)
+    } catch (e: any) {
+      toast.error(e?.message || "حدث خطأ أثناء حفظ التقييم")
     }
-    toast.promise(
-      participationStats(feedbackData, Number(participation.id)),
-      {
-        pending: "جاري إرسال التقييم",
-        success: "تم إرسال التقييم بنجاح",
-        error: "حدث خطأ أثناء إرسال التقييم"
-      }
-    ).then(() => {
-      setFeedback("")
-    setIsStatsOpen(false)
-    });
-
-
-    
   }
 
   return (
@@ -186,40 +185,80 @@ const ParticipationCard: React.FC<ParticipationCardProps> = ({ participation }) 
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <h3 className="font-medium text-blue-800 mb-2">ساعات العمل</h3>
-                    <p className="text-2xl font-bold text-blue-900">{participation.hours_worked} ساعة</p>
+                  {/* Total Impact Credit Banner */}
+                  <div className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-4 rounded-xl flex items-center justify-between shadow-sm">
+                    <div>
+                      <p className="text-xs text-emerald-100 font-medium">الرصيد المعتمد لهذه المشاركة:</p>
+                      <p className="text-2xl font-black mt-0.5">
+                        {participation.calculated_credit_hours || ((participation.hours_worked || 4) * 1.5)}{" "}
+                        <span className="text-sm font-normal">ساعة أثر</span>
+                      </p>
+                    </div>
+                    <Sparkles className="w-8 h-8 text-amber-300" />
                   </div>
 
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <h3 className="font-medium text-green-800 mb-2">التقييم</h3>
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl font-bold text-green-900">{participation.rating}</span>
-                      <div className="flex text-yellow-500">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <span
-                            key={star}
-                            className={star <= Math.floor(participation?.rating ?? 0) ? "text-yellow-500" : "text-gray-300"}
-                          >
-                            ★
-                          </span>
-                        ))}
-                      </div>
+                  {/* Valuation Breakdown Grid */}
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="bg-emerald-50 border border-emerald-200 p-2.5 rounded-lg">
+                      <span className="text-emerald-800 font-bold block mb-1">الجهد الميداني (x1.5)</span>
+                      <p className="font-extrabold text-emerald-950 text-sm">
+                        {(participation.hours_worked || 4) * 1.5} س{" "}
+                        <span className="text-[10px] text-gray-500 font-normal">({participation.hours_worked || 4}س عمل)</span>
+                      </p>
+                    </div>
+
+                    <div className="bg-indigo-50 border border-indigo-200 p-2.5 rounded-lg">
+                      <span className="text-indigo-800 font-bold block mb-1">المهارة والتخصص</span>
+                      <p className="font-extrabold text-indigo-950 text-xs">
+                        {participation.skill_level === 'lead' ? 'مؤطر فني (+3س)' : participation.skill_level === 'specialist' ? 'منفذ فني متخصص (+2س)' : 'مساهم عام (1.0x)'}
+                      </p>
                     </div>
                   </div>
 
-                  <div className="bg-purple-50 p-4 rounded-lg">
-                    <h3 className="font-medium text-purple-800 mb-2">تعليق المنظمة</h3>
-                    <p className="text-purple-900">{participation.organization_feedback}</p>
-                  </div>
+                  {/* Logistics Badges */}
+                  {(participation.provided_transport || participation.provided_equipment || participation.provided_donation) && (
+                    <div className="bg-amber-50 border border-amber-200 p-2.5 rounded-lg text-xs space-y-1">
+                      <span className="text-amber-900 font-bold block">مساهمات لوجستية موثقة:</span>
+                      <div className="flex flex-wrap gap-1.5 pt-0.5">
+                        {participation.provided_transport && <span className="bg-amber-200 text-amber-900 px-2 py-0.5 rounded font-bold text-[10px]">توفير وسيلة نقل (+3س)</span>}
+                        {participation.provided_equipment && <span className="bg-amber-200 text-amber-900 px-2 py-0.5 rounded font-bold text-[10px]">توفير عتاد وأدوات (+2س)</span>}
+                        {participation.provided_donation && <span className="bg-amber-200 text-amber-900 px-2 py-0.5 rounded font-bold text-[10px]">مساهمة عينية أو تمويل (+3س)</span>}
+                      </div>
+                    </div>
+                  )}
 
-                  <div className="pt-2">
-                    <h3 className="font-medium mb-2">أضف تقييمك للفرصة التطوعية</h3>
+                  {/* Organization Rating to Volunteer */}
+                  {participation.organization_feedback && (
+                    <div className="bg-purple-50 border border-purple-200 p-3 rounded-lg text-xs">
+                      <span className="font-bold text-purple-900 block mb-1">شهادة الجمعية حول أدائك:</span>
+                      <p className="text-purple-950">{participation.organization_feedback}</p>
+                    </div>
+                  )}
+
+                  {/* Volunteer Rate Organization Section */}
+                  <div className="pt-2 border-t border-gray-200 space-y-2">
+                    <label className="text-xs font-bold text-gray-800 block">
+                      تقييمك للجمعية المنظمة والتأطير الميداني (مؤشر التميز الجمعوي):
+                    </label>
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => setOrgRating(star)}
+                          className="p-1 focus:outline-none"
+                        >
+                          <Star
+                            className={`w-5 h-5 ${orgRating >= star ? 'text-amber-400 fill-amber-400' : 'text-gray-300'}`}
+                          />
+                        </button>
+                      ))}
+                    </div>
                     <Textarea
-                      placeholder="شاركنا تجربتك مع هذه الفرصة التطوعية..."
+                      placeholder="شاركنا رأيك حول حسن الاستقبال، التأطير والسلامة الميدانية لمساعدة الجمعية على التطور..."
                       value={feedback}
                       onChange={(e) => setFeedback(e.target.value)}
-                      className="min-h-[100px]"
+                      className="min-h-[75px] text-xs"
                     />
                   </div>
                 </div>
@@ -227,8 +266,8 @@ const ParticipationCard: React.FC<ParticipationCardProps> = ({ participation }) 
                   <Button type="button" variant="secondary" onClick={() => setIsStatsOpen(false)}>
                     إغلاق
                   </Button>
-                  <Button className="text-white" type="button" onClick={handleSubmitFeedback}>
-                    إرسال التقييم
+                  <Button className="text-white bg-emerald-600 hover:bg-emerald-700" type="button" onClick={handleSubmitFeedback}>
+                    إرسال التقييم للجمعية
                   </Button>
                 </DialogFooter>
               </DialogContent>

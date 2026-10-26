@@ -45,6 +45,16 @@ interface OrganizationItem {
   president_name?: string
   approval_date?: string
   is_confirmed: boolean
+  impact?: {
+    impact_points: number
+    tier: string
+    tier_label: string
+    avg_volunteer_rating: number
+    badge_volunteer_friendly: boolean
+    badge_training_incubator: boolean
+    badge_rapid_response: boolean
+    opportunities_completed: number
+  }
 }
 
 export default function VerifiedOrganizationsPage() {
@@ -211,11 +221,26 @@ export default function VerifiedOrganizationsPage() {
               >
                 <Card className="h-full flex flex-col justify-between border-border/70 hover:border-primary/50 hover:shadow-xl transition-all group overflow-hidden">
                   <CardHeader className="space-y-3 pb-3">
-                    <div className="flex items-center justify-between">
-                      <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1 text-xs">
-                        <ShieldCheck className="w-3.5 h-3.5" />
-                        معتمدة رسمياً وموثقة
-                      </Badge>
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1 text-xs">
+                          <ShieldCheck className="w-3.5 h-3.5" />
+                          معتمدة رسمياً
+                        </Badge>
+                        <Badge variant="outline" className="text-teal-800 border-teal-300 bg-teal-50 text-[11px] font-bold">
+                          {org.impact?.tier_label || "جمعية نشطة وموثوقة"}
+                        </Badge>
+                        {org.impact?.badge_volunteer_friendly && (
+                          <Badge variant="outline" className="text-blue-800 border-blue-300 bg-blue-50 text-[11px] font-bold">
+                            ★ صديقة المتطوعين ({org.impact.avg_volunteer_rating || 5.0})
+                          </Badge>
+                        )}
+                        {org.impact?.badge_training_incubator && (
+                          <Badge variant="outline" className="text-purple-800 border-purple-300 bg-purple-50 text-[11px] font-bold">
+                            حاضنة التكوين
+                          </Badge>
+                        )}
+                      </div>
                       <span className="text-xs text-muted-foreground flex items-center gap-1">
                         <MapPin className="w-3.5 h-3.5 text-primary" />
                         {org.wilaya} {org.daira ? `• ${org.daira}` : ""}

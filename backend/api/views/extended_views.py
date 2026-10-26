@@ -102,8 +102,20 @@ class TrainingCourseListView(APIView):
 
     def get(self, request):
         courses = TrainingCourse.objects.filter(is_active=True)
-        results = [
-            {
+        user = request.user
+        volunteer = getattr(user, 'volunteer', None) if user.is_authenticated else None
+
+        results = []
+        for c in courses:
+            is_enrolled = False
+            is_completed = False
+            if volunteer:
+                enrollment = c.enrollments.filter(volunteer=volunteer).first()
+                if enrollment:
+                    is_enrolled = True
+                    is_completed = enrollment.is_completed
+
+            results.append({
                 "id": str(c.id),
                 "title": c.title,
                 "trainer_or_provider": c.trainer_or_provider,
@@ -114,9 +126,110 @@ class TrainingCourseListView(APIView):
                 "start_date": c.start_date,
                 "duration_hours": c.duration_hours,
                 "max_participants": c.max_participants,
-            }
-            for c in courses
-        ]
+                "enrolled_count": c.enrollments.count(),
+                "is_enrolled": is_enrolled,
+                "is_completed": is_completed,
+            })
+        return Response(results, status=status.HTTP_200_OK)
+
+
+class TrainingCourseEnrollView(APIView):
+    """Volunteer enrolls in a training course."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, course_id):
+        user = request.user
+        if not hasattr(user, 'volunteer'):
+            return Response({"error": "Only volunteers can enroll in training courses"}, status=403)
+
+        try:
+            course = TrainingCourse.objects.get(id=course_id, is_active=True)
+        except TrainingCourse.DoesNotExist:
+            return Response({"error": "Training course not found"}, status=404)
+
+        from api.models import TrainingEnrollment
+        enrollment, created = TrainingEnrollment.objects.get_or_create(
+            course=course,
+            volunteer=user.volunteer
+        )
+
+        return Response({
+            "success": True,
+            "created": created,
+            "message": f"تم التسجيل بنجاح في دورة: {course.title}. عند إتمامك للدورة ستضاف {course.duration_hours} ساعات إلى رصيدك التطوعي."
+        }, status=status.HTTP_200_OK)
+
+
+class TrainingCourseCompleteView(APIView):
+    """Mark a volunteer's training course as completed and credit the hours."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, course_id):
+        user = request.user
+        from api.models import TrainingEnrollment
+        from api.impact_services import ImpactService
+
+        # Allow volunteer self-completion or admin/organization verification
+        target_volunteer = None
+        volunteer_id = request.data.get('volunteer_id')
+
+        if volunteer_id and (user.is_staff or hasattr(user, 'organization')):
+            from users.models import Volunteer
+            try:
+                target_volunteer = Volunteer.objects.get(id=volunteer_id)
+            except Volunteer.DoesNotExist:
+                return Response({"error": "Volunteer not found"}, status=404)
+        elif hasattr(user, 'volunteer'):
+            target_volunteer = user.volunteer
+        else:
+            return Response({"error": "Unauthorized"}, status=403)
+
+        try:
+            course = TrainingCourse.objects.get(id=course_id)
+        except TrainingCourse.DoesNotExist:
+            return Response({"error": "Training course not found"}, status=404)
+
+        enrollment, _ = TrainingEnrollment.objects.get_or_create(
+            course=course,
+            volunteer=target_volunteer
+        )
+        enrollment.is_completed = True
+        enrollment.completed_at = timezone.now()
+        enrollment.save()
+
+        hours = ImpactService.award_training_credit(enrollment)
+
+        return Response({
+            "success": True,
+            "hours_awarded": float(hours),
+            "message": f"تهانينا! تم توثيق إتمام الدورة بنجاح وإضافة {hours} ساعات تكوين معتمدة إلى رصيد المتطوع."
+        }, status=status.HTTP_200_OK)
+
+
+class OrganizationLeaderboardView(APIView):
+    """Leaderboard of top volunteer organizations ranked by civic impact score."""
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        from api.models import OrganizationImpact
+        impacts = OrganizationImpact.objects.select_related('organization').order_by('-impact_points')[:10]
+        results = []
+        for imp in impacts:
+            org = imp.organization
+            results.append({
+                "id": str(org.id),
+                "name": org.organization_name,
+                "wilaya": org.wilaya or "الجزائر",
+                "logo": org.logo.url if org.logo else None,
+                "impact_points": imp.impact_points,
+                "tier": imp.tier,
+                "tier_label": imp.get_tier_display(),
+                "avg_rating": float(imp.avg_volunteer_rating),
+                "badge_volunteer_friendly": imp.badge_volunteer_friendly,
+                "badge_training_incubator": imp.badge_training_incubator,
+                "badge_rapid_response": imp.badge_rapid_response,
+                "opportunities_count": imp.opportunities_completed,
+            })
         return Response(results, status=status.HTTP_200_OK)
 
 
