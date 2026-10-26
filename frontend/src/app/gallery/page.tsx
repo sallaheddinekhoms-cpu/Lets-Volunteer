@@ -103,8 +103,8 @@ export default async function GalleryPage() {
         <MediaGallery
           annoncesImages={annoncesImages}
           videoUrls={videoUrls}
-          rawVideos={videosResult.data || []}
-          rawAnnouncements={announcementsResult.data || []}
+          rawVideos={videosList}
+          rawAnnouncements={announcementsList}
         />
       </div>
 

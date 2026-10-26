@@ -17,7 +17,14 @@ export async function getOpportunities(filters? : Partial<OpportunityFilters>):P
       })
 
       
-      return { data: data.results, count:data.count , status }     
+      const results: OpportunityForCardList[] = Array.isArray(data?.results)
+            ? data.results
+            : (Array.isArray(data) ? data : []);
+      const count: number = typeof data?.count === 'number'
+            ? data.count
+            : results.length;
+
+      return { data: results, count, status }     
 
 }
 

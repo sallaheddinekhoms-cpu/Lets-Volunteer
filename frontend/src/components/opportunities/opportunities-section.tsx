@@ -39,16 +39,20 @@ interface OpportunitiesSectionProps {
 }
 
 export function OpportunitiesSection({
-  opportunities,
-  categories,
-  wilayas,
-  currentPage,
-  totalPages,
+  opportunities = [],
+  categories = [],
+  wilayas = [],
+  currentPage = 1,
+  totalPages = 1,
   initialViewMode = "grid"
 }: OpportunitiesSectionProps) {
   const [viewMode, setViewMode] = useState<"grid" | "map">(initialViewMode);
 
-  const mapItems = opportunities.map((opp) => ({
+  const safeOpps = Array.isArray(opportunities) ? opportunities : [];
+  const safeCategories = Array.isArray(categories) ? categories : [];
+  const safeWilayas = Array.isArray(wilayas) ? wilayas : [];
+
+  const mapItems = safeOpps.map((opp) => ({
     id: opp.id,
     title: opp.title,
     wilaya: opp.wilaya,
@@ -113,7 +117,7 @@ export function OpportunitiesSection({
           {/* Controls Bar: Filters & View Switcher */}
           <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
             <div className="flex-1 min-w-[280px]">
-              <FilterSection categories={categories} wilayas={wilayas} />
+              <FilterSection categories={safeCategories} wilayas={safeWilayas} />
             </div>
 
             {/* View Mode Toggle */}
@@ -156,7 +160,7 @@ export function OpportunitiesSection({
             </motion.div>
           ) : (
             <div dir="rtl" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-              {opportunities.map((opportunity, index) => (
+              {safeOpps.map((opportunity, index) => (
                 <motion.div
                   key={opportunity.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -169,7 +173,7 @@ export function OpportunitiesSection({
             </div>
           )}
 
-          {opportunities.length === 0 && (
+          {safeOpps.length === 0 && (
             <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-gray-200 my-8">
               <p className="text-muted-foreground text-lg">
                 لم يتم العثور على فرص تطوع مطابقة لمعايير البحث الحالية

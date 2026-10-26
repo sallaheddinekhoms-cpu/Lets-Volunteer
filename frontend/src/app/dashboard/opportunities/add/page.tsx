@@ -12,7 +12,7 @@ export default async function AdminAddOpportunityPage() {
 
     try {
       const catRes = await getCategories();
-      categories = catRes?.data || [];
+      categories = Array.isArray(catRes?.data) ? catRes.data : [];
     } catch (e) {
       console.error("Failed to load categories in admin add opportunity:", e);
     }

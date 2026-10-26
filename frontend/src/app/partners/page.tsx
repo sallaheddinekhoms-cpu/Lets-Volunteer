@@ -9,7 +9,7 @@ async function PartnersPage() {
   let partners: Partner[] = [];
   try {
     const result = await getPartners();
-    partners = result.data || [];
+    partners = Array.isArray(result?.data) ? result.data : [];
   } catch (error) {
     console.error("Failed to fetch partners:", error);
     partners = [];

@@ -14,17 +14,22 @@ const OpportunitiesPage: React.FC<OpportunitiesPageProps> = async ({searchParams
     const filters = await searchParams
     const initialViewMode = filters?.view === "map" ? "map" : "grid"
 
-    const { data: opportunities, count } = await getOpportunities(filters)
-    const { data: categories } = await getCategories()
-    const wilayas = algerianWilayas.getAllWilayas()
+    const oppsResult = await getOpportunities(filters)
+    const catResult = await getCategories()
+    const wilayas = Array.isArray(algerianWilayas.getAllWilayas()) ? algerianWilayas.getAllWilayas() : []
+
+    const opportunities = Array.isArray(oppsResult?.data) ? oppsResult.data : []
+    const categories = Array.isArray(catResult?.data) ? catResult.data : []
+    const count = typeof oppsResult?.count === 'number' ? oppsResult.count : opportunities.length
+    const totalPages = Math.max(1, Math.ceil(count / 10))
 
     return (
       <OpportunitiesSection
         opportunities={opportunities}
         categories={categories}
         wilayas={wilayas}
-        totalPages={Math.ceil(count / 10)}
-        currentPage={filters.page || 1}
+        totalPages={totalPages}
+        currentPage={Number(filters?.page) || 1}
         initialViewMode={initialViewMode}
       />
     )

@@ -30,14 +30,14 @@ export default async function OpportunitiesPage(
 
   try {
     const resCategories = await getCategories()
-    categories = resCategories?.data || []
+    categories = Array.isArray(resCategories?.data) ? resCategories.data : []
   } catch (err) {
     console.error("Failed to fetch categories:", err)
   }
 
   try {
     const resOpportunities = await getOpportunities(filters)
-    opportunities = resOpportunities?.data || []
+    opportunities = Array.isArray(resOpportunities?.data) ? resOpportunities.data : []
     count = resOpportunities?.count || 0
   } catch (err) {
     console.error("Failed to fetch opportunities:", err)
