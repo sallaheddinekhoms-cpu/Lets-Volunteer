@@ -34,9 +34,16 @@ export interface TopVolunteersProps {
 }
 
 // Helper function to safely fetch data with error handling
-async function safeFetch<T>(fetchFn: () => Promise<T>, defaultValue: T): Promise<T> {
+async function safeFetch<T extends { status?: number; data?: any }>(
+  fetchFn: () => Promise<T>,
+  defaultValue: T
+): Promise<T> {
   try {
-    return await fetchFn();
+    const res = await fetchFn();
+    if (res && typeof res.status === 'number' && res.status >= 400) {
+      return defaultValue;
+    }
+    return res;
   } catch (error) {
     console.error(`Error fetching data:`, error);
     return defaultValue;
@@ -66,11 +73,17 @@ async function App() {
     safeFetch(() => getAnnouncements(), { data: [], status: 500 }),
   ]);
 
-  const latestOpportunities = opportunitiesResult.data?.slice(0, 3) || [];
+  // Safely extract arrays even if backend returns error objects or non-array data
+  const oppsList = Array.isArray(opportunitiesResult?.data) ? opportunitiesResult.data : [];
+  const announcementsList = Array.isArray(announcementsResult?.data) ? announcementsResult.data : [];
+  const videosList = Array.isArray(videosResult?.data) ? videosResult.data : [];
+  const partnersList = Array.isArray(partnersResult?.data) ? partnersResult.data : [];
+
+  const latestOpportunities = oppsList.slice(0, 3);
 
   // Extract urgent alerts from urgent opportunities
-  const urgentOpportunities: UrgentAlert[] = (opportunitiesResult.data || [])
-    .filter((opp: any) => opp.is_urgent)
+  const urgentOpportunities: UrgentAlert[] = oppsList
+    .filter((opp: any) => opp && opp.is_urgent)
     .map((opp: any) => ({
       id: opp.id,
       title: `نداء عاجل: ${opp.title} (${opp.daira || ''})`,
@@ -78,9 +91,13 @@ async function App() {
       wilaya: opp.wilaya,
     }));
 
-  // Map API data to component format
-  const annoncesImages = announcementsResult.data?.map((announcement: any) => announcement.image_url) || [];
-  const videoUrls = videosResult.data?.map((video: any) => video.video_url) || [];
+  // Map API data to component format safely
+  const annoncesImages = announcementsList
+    .map((announcement: any) => announcement?.image_url)
+    .filter(Boolean);
+  const videoUrls = videosList
+    .map((video: any) => video?.video_url)
+    .filter(Boolean);
 
   return (
     <>
@@ -92,16 +109,16 @@ async function App() {
       <MediaGallery
         annoncesImages={annoncesImages}
         videoUrls={videoUrls}
-        rawVideos={videosResult.data || []}
-        rawAnnouncements={announcementsResult.data || []}
+        rawVideos={videosList}
+        rawAnnouncements={announcementsList}
       />
       <SolidaritySpotlight />
       <TopVolunteersSection
-        weeklyVolunteers={topVolunteersResult.data?.weekly_volunteers || []}
-        monthlyVolunteers={topVolunteersResult.data?.monthly_volunteers || []}
-        allTimeVolunteers={topVolunteersResult.data?.all_time_volunteers || []}
+        weeklyVolunteers={topVolunteersResult?.data?.weekly_volunteers || []}
+        monthlyVolunteers={topVolunteersResult?.data?.monthly_volunteers || []}
+        allTimeVolunteers={topVolunteersResult?.data?.all_time_volunteers || []}
       />
-      <PartnersSection partners={partnersResult.data || []} />
+      <PartnersSection partners={partnersList} />
       <ContactSection />
     </>
   );

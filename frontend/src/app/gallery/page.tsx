@@ -13,9 +13,16 @@ export const metadata: Metadata = {
 };
 
 // Helper for safe data fetching
-async function safeFetch<T>(fetchFn: () => Promise<T>, defaultValue: T): Promise<T> {
+async function safeFetch<T extends { status?: number; data?: any }>(
+  fetchFn: () => Promise<T>,
+  defaultValue: T
+): Promise<T> {
   try {
-    return await fetchFn();
+    const res = await fetchFn();
+    if (res && typeof res.status === 'number' && res.status >= 400) {
+      return defaultValue;
+    }
+    return res;
   } catch (error) {
     console.error("Gallery safeFetch error:", error);
     return defaultValue;
@@ -28,8 +35,11 @@ export default async function GalleryPage() {
     safeFetch(() => getAnnouncements(), { data: [], status: 500 }),
   ]);
 
-  const annoncesImages = (announcementsResult.data || []).map((a: any) => a.image_url);
-  const videoUrls = (videosResult.data || []).map((v: any) => v.video_url);
+  const announcementsList = Array.isArray(announcementsResult?.data) ? announcementsResult.data : [];
+  const videosList = Array.isArray(videosResult?.data) ? videosResult.data : [];
+
+  const annoncesImages = announcementsList.map((a: any) => a?.image_url).filter(Boolean);
+  const videoUrls = videosList.map((v: any) => v?.video_url).filter(Boolean);
 
   return (
     <div className="min-h-screen bg-slate-50/50">
