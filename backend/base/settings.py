@@ -169,6 +169,63 @@ else:
         }
     }
 
+# Ensure robust connection to Neon tech even when local ISP DNS fails
+def _resolve_working_neon_hostaddr(domain):
+    import socket, struct
+    try:
+        ip = socket.gethostbyname(domain)
+        s = socket.socket()
+        s.settimeout(1.0)
+        s.connect((ip, 5432))
+        s.close()
+        return ip
+    except Exception:
+        pass
+    try:
+        packet = b'\xaa\xbb\x01\x00\x00\x01\x00\x00\x00\x00\x00\x00'
+        for part in domain.split('.'):
+            packet += struct.pack('!B', len(part)) + part.encode('ascii')
+        packet += b'\x00\x00\x01\x00\x01'
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.settimeout(2.0)
+        sock.sendto(packet, ('8.8.8.8', 53))
+        data, _ = sock.recvfrom(1024)
+        idx = 12
+        while idx < len(data) and data[idx] != 0:
+            idx += 1 + data[idx]
+        idx += 5
+        ips = []
+        while idx < len(data):
+            if (data[idx] & 0xc0) == 0xc0:
+                idx += 2
+            else:
+                while idx < len(data) and data[idx] != 0:
+                    idx += 1 + data[idx]
+                idx += 1
+            rtype, rclass, ttl, rdlen = struct.unpack('!HHIH', data[idx:idx+10])
+            idx += 10
+            if rtype == 1 and rdlen == 4:
+                ips.append(socket.inet_ntoa(data[idx:idx+4]))
+            idx += rdlen
+        for ip in ips:
+            s = socket.socket()
+            s.settimeout(1.5)
+            try:
+                s.connect((ip, 5432))
+                s.close()
+                return ip
+            except Exception:
+                s.close()
+    except Exception:
+        pass
+    return "3.18.239.121"
+
+if "neon.tech" in DATABASES.get("default", {}).get("HOST", ""):
+    DATABASES["default"].setdefault("OPTIONS", {})
+    working_ip = _resolve_working_neon_hostaddr(DATABASES["default"]["HOST"])
+    if working_ip:
+        DATABASES["default"]["OPTIONS"]["hostaddr"] = working_ip
+
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -252,3 +309,9 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "letsvolunteerdz@gmail.com")
 
 # Cloudflare Turnstile
 CLOUDFLARE_TURNSTILE_SECRET_KEY = os.getenv("CLOUDFLARE_TURNSTILE_SECRET_KEY", "1x0000000000000000000000000000000AA")
+
+# Social Auth Credentials (Google & Facebook)
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
+FACEBOOK_APP_ID = os.getenv("FACEBOOK_APP_ID", "")
+FACEBOOK_APP_SECRET = os.getenv("FACEBOOK_APP_SECRET", "")
